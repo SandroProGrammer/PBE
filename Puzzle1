@@ -1,0 +1,23 @@
+from smartcard.CardType import AnyCardType
+from smartcard.CardRequest import CardRequest
+from smartcard.CardConnection import CardConnection
+from smartcard.util import toHexString
+import sys
+class Rfid_acr122u:
+    def read_uid(self):
+        getuid=[0xFF, 0xCA, 0x00, 0x00, 0x00]
+        act = AnyCardType()
+        cr = CardRequest( timeout=10, cardType=act )
+        cs = cr.waitforcard()
+        cs.connection.connect()
+
+        data,sw1,sw2 = cs.connection.transmit(getuid)
+        data = toHexString(data)
+        return data
+        cs=None  #evita el error al llamr sys.exit
+        sys.exit()
+if __name__=="__main__":
+    print("Ponga la tarjeta sobre el lector:"+"\t")
+    rf = Rfid_acr122u()
+    uid = rf.read_uid()
+print("uid = {}".format(uid))
