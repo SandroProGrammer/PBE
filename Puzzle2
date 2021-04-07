@@ -1,0 +1,78 @@
+from puzzle1 import Rfid_acr122u
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+from gi.repository import Gdk
+import threading
+
+class Finestra(Gtk.Window):
+    def __init__(self):
+        
+        #Creo la ventana 
+        Gtk.Window.__init__(self,title="Lector de tarjetas")
+        self.connect("destroy",Gtk.main_quit)
+        self.set_border_width(20)
+        
+        #Creo una caja para poner la etiqueta de arriba y el boton de abajo
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=20)
+        
+        #Añado la caja a la ventana
+        self.add(self.box)
+        
+        #Creo una caja eventual la qual cambiara de color
+        self.evbox = Gtk.EventBox()
+        self.evbox.override_background_color(0,Gdk.RGBA(0,0,8,1))
+        
+        #Creo la etiqueta
+        self.label =Gtk.Label(
+            '<span foreground = "white" size="x-large">Introduzca la tarjeta</span>')
+        self.label.set_use_markup(True)
+        self.label.set_name("Bluelabel")
+        self.label.set_size_request(500,100)
+        
+        
+        #Añadimos la etiqueta a la caja
+        self.evbox.add(self.label)
+        
+        #Creo el boton
+        self.button = Gtk.Button(label="Clear")
+        self.button.connect("clicked",self.clicked)
+        
+        #Añadimos el boton a la caja
+        self.box.pack_start(self.evbox,True,True,0)
+        self.box.pack_start(self.button,True,True,0)
+        
+        #Creo y comienzo el Thread
+        thread = threading.Thread(target=self.scan_uid)
+        thread.setDaemon(True)
+        thread.start()
+        
+        #Mostramos todo lo creado anteriormente
+        self.show_all()
+        Gtk.main()
+ 
+    
+    def clicked(self,widget):
+        
+        #Cambio la label a su estado inicial 
+        self.label.set_label(
+            '<span foreground="white" size="x-large">Introduzca la targeta</span>')
+        self.evbox.override_background_color(0,Gdk.RGBA(0,0,8,1))
+        
+        #Volvemos a iniciar el Thread
+        thread = threading.Thread(target=self.scan_uid)
+        thread.start()
+        
+    def scan_uid(self):
+        
+        #Creo el lector y leo el uid através del puzzle 1 
+        rf = Rfid_acr122u()
+        uid = rf.read_uid()
+        
+        #Cambio la label a color rojo
+        self.label.set_label('<span foreground="white" size="x-large">Uid:'+uid+'</span>')
+        self.evbox.override_background_color(0,Gdk.RGBA(8,0,0,1))
+win = Finestra()
+        
+
+    
