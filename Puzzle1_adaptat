@@ -1,0 +1,26 @@
+from smartcard.CardType import AnyCardType
+from smartcard.CardRequest import CardRequest
+from smartcard.CardConnection import CardConnection
+from smartcard.util import toHexString
+import sys
+
+
+class Rfid_acr122u:
+    def __init__(self):
+       
+        self.getuid=[0xFF, 0xCA, 0x00, 0x00, 0x00]
+        self.act = AnyCardType()
+        self.cr = CardRequest( timeout=10, cardType=self.act )
+        self.cs = self.cr.waitforcard()
+        self.cs.connection.connect()
+        
+    def read_uid(self):
+        
+                data,sw1,sw2 = self.cs.connection.transmit(self.getuid)
+                data = toHexString(data)
+                return data
+                self.cs=None  #evita el error al llamr sys.exit
+                sys.exit()
+               
+
+
